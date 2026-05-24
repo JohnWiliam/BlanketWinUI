@@ -14,6 +14,8 @@ const SOUND_LIBRARY = [
   ['wind', 'Vento'],
 ];
 
+const SOUND_BASE_PATH = '../Projeto/data/resources/sounds';
+
 const soundList = document.querySelector('#soundList');
 const template = document.querySelector('#soundItemTemplate');
 const toggleAll = document.querySelector('#toggleAll');
@@ -24,9 +26,9 @@ const masterVolumeValue = document.querySelector('#masterVolumeValue');
 let globalVolumeFactor = Number(masterVolume.value) / 100;
 
 const players = SOUND_LIBRARY.map(([key, label], index) => {
-  const audio = new Audio(`../data/resources/sounds/${key}.ogg`);
+  const audio = new Audio(`${SOUND_BASE_PATH}/${key}.ogg`);
   audio.loop = true;
-  audio.preload = 'metadata';
+  audio.preload = 'auto';
   audio.volume = globalVolumeFactor;
 
   const item = template.content.firstElementChild.cloneNode(true);
@@ -42,31 +44,43 @@ const players = SOUND_LIBRARY.map(([key, label], index) => {
     const individual = Number(slider.value) / 100;
     audio.volume = Math.min(individual * globalVolumeFactor, 1);
     sliderValue.textContent = `${slider.value}%`;
+    slider.style.setProperty('--volume-percent', `${slider.value}%`);
   };
 
   slider.addEventListener('input', applyVolume);
 
-  applyVolume();
+  const setPlayingState = (isPlaying) => {
+    btn.textContent = isPlaying ? 'Pausar' : 'Tocar';
+    btn.classList.toggle('is-playing', isPlaying);
+    item.classList.toggle('is-playing', isPlaying);
+  };
 
   btn.addEventListener('click', async () => {
-    if (audio.paused) {
-      await audio.play();
-      btn.textContent = 'Pausar';
-      btn.classList.add('is-playing');
-      item.classList.add('is-playing');
-    } else {
-      audio.pause();
-      btn.textContent = 'Tocar';
-      btn.classList.remove('is-playing');
-      item.classList.remove('is-playing');
+    try {
+      if (audio.paused) {
+        await audio.play();
+        setPlayingState(true);
+      } else {
+        audio.pause();
+        setPlayingState(false);
+      }
+    } catch (error) {
+      console.error(`Falha ao tocar ${label}:`, error);
+      btn.textContent = 'Erro ao tocar';
     }
 
     refreshMasterButton();
   });
 
+  audio.addEventListener('error', () => {
+    btn.textContent = 'Arquivo ausente';
+    btn.disabled = true;
+  });
+
+  applyVolume();
   soundList.appendChild(item);
 
-  return { audio, btn, slider, item };
+  return { audio, btn, slider, item, setPlayingState };
 });
 
 function refreshMasterButton() {
@@ -78,18 +92,18 @@ toggleAll.addEventListener('click', async () => {
   const isAnythingPlaying = players.some(({ audio }) => !audio.paused);
 
   if (isAnythingPlaying) {
-    players.forEach(({ audio, btn, item }) => {
+    players.forEach(({ audio, setPlayingState }) => {
       audio.pause();
-      btn.textContent = 'Tocar';
-      btn.classList.remove('is-playing');
-      item.classList.remove('is-playing');
+      setPlayingState(false);
     });
   } else {
-    for (const { audio, btn, item } of players) {
-      await audio.play();
-      btn.textContent = 'Pausar';
-      btn.classList.add('is-playing');
-      item.classList.add('is-playing');
+    for (const player of players) {
+      try {
+        await player.audio.play();
+        player.setPlayingState(true);
+      } catch (error) {
+        console.error('Falha na reprodução em lote:', error);
+      }
     }
   }
 
@@ -97,12 +111,10 @@ toggleAll.addEventListener('click', async () => {
 });
 
 stopAll.addEventListener('click', () => {
-  players.forEach(({ audio, btn, item }) => {
+  players.forEach(({ audio, setPlayingState }) => {
     audio.pause();
     audio.currentTime = 0;
-    btn.textContent = 'Tocar';
-    btn.classList.remove('is-playing');
-    item.classList.remove('is-playing');
+    setPlayingState(false);
   });
 
   refreshMasterButton();
@@ -111,8 +123,10 @@ stopAll.addEventListener('click', () => {
 masterVolume.addEventListener('input', (event) => {
   globalVolumeFactor = Number(event.target.value) / 100;
   masterVolumeValue.textContent = `${event.target.value}%`;
+  masterVolume.style.setProperty('--volume-percent', `${event.target.value}%`);
   players.forEach(({ slider }) => slider.dispatchEvent(new Event('input')));
 });
 
+masterVolume.style.setProperty('--volume-percent', `${masterVolume.value}%`);
 masterVolumeValue.textContent = `${masterVolume.value}%`;
 refreshMasterButton();
