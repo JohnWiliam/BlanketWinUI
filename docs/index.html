@@ -8,21 +8,34 @@
       name="description"
       content="Blanket Web: misture sons ambientes online para foco, relaxamento e sono."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="bg-glow bg-glow--1" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow--2" aria-hidden="true"></div>
+
     <main class="app">
       <header class="app__header">
+        <p class="eyebrow">Experiência sonora</p>
         <h1>Blanket Web</h1>
-        <p>Reprodução online dos sons do projeto original.</p>
+        <p class="lead">Crie ambientes de foco e relaxamento com mixagem em tempo real.</p>
       </header>
 
       <section class="master-controls" aria-label="Controles gerais">
-        <button id="toggleAll" class="btn btn--primary" type="button">Tocar tudo</button>
-        <button id="stopAll" class="btn" type="button">Parar tudo</button>
+        <div class="master-controls__buttons">
+          <button id="toggleAll" class="btn btn--primary" type="button">Tocar tudo</button>
+          <button id="stopAll" class="btn btn--secondary" type="button">Parar tudo</button>
+        </div>
         <label class="master-volume" for="masterVolume">
-          Volume geral
+          <span>Volume geral</span>
           <input id="masterVolume" type="range" min="0" max="100" value="70" />
+          <strong id="masterVolumeValue">70%</strong>
         </label>
       </section>
 
@@ -35,11 +48,12 @@
       <li class="sound-card">
         <div class="sound-card__top">
           <h2 class="sound-card__title"></h2>
-          <button class="btn sound-card__toggle" type="button">Tocar</button>
+          <button class="btn btn--chip sound-card__toggle" type="button">Tocar</button>
         </div>
-        <label>
-          Volume
+        <label class="sound-card__volume-wrap">
+          <span>Volume</span>
           <input class="sound-card__volume" type="range" min="0" max="100" value="70" />
+          <strong class="sound-card__volume-value">70%</strong>
         </label>
       </li>
     </template>
