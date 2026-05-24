@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blanket Web</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Blanket Web</h1>
+    <p>Ambiente sonoro para foco e relaxamento</p>
+  </header>
+
+  <main class="app">
+    <section class="controls" aria-label="Controles gerais">
+      <button id="playAllBtn" class="btn primary">Tocar tudo</button>
+      <button id="pauseAllBtn" class="btn">Pausar tudo</button>
+      <button id="stopAllBtn" class="btn danger">Parar tudo</button>
+
+      <label class="master-volume" for="masterVolume">
+        Volume geral
+        <input id="masterVolume" type="range" min="0" max="1" value="1" step="0.01" />
+      </label>
+    </section>
+
+    <section class="preset-panel" aria-label="Presets">
+      <input id="presetName" type="text" placeholder="Nome do preset" maxlength="40" />
+      <button id="savePresetBtn" class="btn">Salvar preset</button>
+      <select id="presetList" aria-label="Lista de presets"></select>
+      <button id="loadPresetBtn" class="btn">Carregar</button>
+      <button id="deletePresetBtn" class="btn danger">Excluir</button>
+    </section>
+
+    <section id="soundsGrid" class="sounds-grid" aria-label="Lista de sons"></section>
+  </main>
+
+  <template id="soundCardTemplate">
+    <article class="sound-card">
+      <div class="sound-head">
+        <h2 class="sound-name"></h2>
+        <button class="btn toggle-btn">Tocar</button>
+      </div>
+      <label>
+        Volume
+        <input class="volume-slider" type="range" min="0" max="1" value="0.5" step="0.01" />
+      </label>
+      <span class="status" aria-live="polite">Pausado</span>
+    </article>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
