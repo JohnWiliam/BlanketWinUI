@@ -14,6 +14,10 @@ const SOUND_LIBRARY = [
   ['wind', 'Vento'],
 ];
 
+const SOUND_BASES = window.location.pathname.includes('/docs/')
+  ? ['../Projeto/data/resources/sounds', './Projeto/data/resources/sounds']
+  : ['./Projeto/data/resources/sounds', '../Projeto/data/resources/sounds'];
+
 const soundList = document.querySelector('#soundList');
 const template = document.querySelector('#soundItemTemplate');
 const toggleAll = document.querySelector('#toggleAll');
@@ -23,11 +27,22 @@ const masterVolumeValue = document.querySelector('#masterVolumeValue');
 
 let globalVolumeFactor = Number(masterVolume.value) / 100;
 
+function soundUrl(key) {
+  return `${SOUND_BASES[0]}/${key}.ogg`;
+}
+
 const players = SOUND_LIBRARY.map(([key, label], index) => {
-  const audio = new Audio(`../data/resources/sounds/${key}.ogg`);
+  const audio = new Audio(soundUrl(key));
   audio.loop = true;
-  audio.preload = 'metadata';
+  audio.preload = 'auto';
   audio.volume = globalVolumeFactor;
+
+  audio.addEventListener('error', () => {
+    if (audio.dataset.fallbackTried) return;
+    audio.dataset.fallbackTried = '1';
+    audio.src = `${SOUND_BASES[1]}/${key}.ogg`;
+    audio.load();
+  });
 
   const item = template.content.firstElementChild.cloneNode(true);
   const title = item.querySelector('.sound-card__title');
@@ -42,23 +57,27 @@ const players = SOUND_LIBRARY.map(([key, label], index) => {
     const individual = Number(slider.value) / 100;
     audio.volume = Math.min(individual * globalVolumeFactor, 1);
     sliderValue.textContent = `${slider.value}%`;
+    slider.style.setProperty('--range-value', `${slider.value}%`);
   };
 
   slider.addEventListener('input', applyVolume);
-
   applyVolume();
 
   btn.addEventListener('click', async () => {
-    if (audio.paused) {
-      await audio.play();
-      btn.textContent = 'Pausar';
-      btn.classList.add('is-playing');
-      item.classList.add('is-playing');
-    } else {
-      audio.pause();
-      btn.textContent = 'Tocar';
-      btn.classList.remove('is-playing');
-      item.classList.remove('is-playing');
+    try {
+      if (audio.paused) {
+        await audio.play();
+        btn.textContent = 'Pausar';
+        btn.classList.add('is-playing');
+        item.classList.add('is-playing');
+      } else {
+        audio.pause();
+        btn.textContent = 'Tocar';
+        btn.classList.remove('is-playing');
+        item.classList.remove('is-playing');
+      }
+    } catch (error) {
+      btn.textContent = 'Toque para iniciar';
     }
 
     refreshMasterButton();
@@ -86,10 +105,14 @@ toggleAll.addEventListener('click', async () => {
     });
   } else {
     for (const { audio, btn, item } of players) {
-      await audio.play();
-      btn.textContent = 'Pausar';
-      btn.classList.add('is-playing');
-      item.classList.add('is-playing');
+      try {
+        await audio.play();
+        btn.textContent = 'Pausar';
+        btn.classList.add('is-playing');
+        item.classList.add('is-playing');
+      } catch (_error) {
+        btn.textContent = 'Toque para iniciar';
+      }
     }
   }
 
@@ -111,8 +134,10 @@ stopAll.addEventListener('click', () => {
 masterVolume.addEventListener('input', (event) => {
   globalVolumeFactor = Number(event.target.value) / 100;
   masterVolumeValue.textContent = `${event.target.value}%`;
+  masterVolume.style.setProperty('--range-value', `${event.target.value}%`);
   players.forEach(({ slider }) => slider.dispatchEvent(new Event('input')));
 });
 
 masterVolumeValue.textContent = `${masterVolume.value}%`;
+masterVolume.style.setProperty('--range-value', `${masterVolume.value}%`);
 refreshMasterButton();
