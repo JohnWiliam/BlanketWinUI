@@ -22,11 +22,12 @@ const masterVolume = document.querySelector('#masterVolume');
 const masterVolumeValue = document.querySelector('#masterVolumeValue');
 
 let globalVolumeFactor = Number(masterVolume.value) / 100;
+let isAudioUnlocked = false;
 
 const players = SOUND_LIBRARY.map(([key, label], index) => {
-  const audio = new Audio(`../data/resources/sounds/${key}.ogg`);
+  const audio = new Audio(`../Projeto/data/resources/sounds/${key}.ogg`);
   audio.loop = true;
-  audio.preload = 'metadata';
+  audio.preload = 'auto';
   audio.volume = globalVolumeFactor;
 
   const item = template.content.firstElementChild.cloneNode(true);
@@ -45,12 +46,14 @@ const players = SOUND_LIBRARY.map(([key, label], index) => {
   };
 
   slider.addEventListener('input', applyVolume);
-
   applyVolume();
 
   btn.addEventListener('click', async () => {
+    await unlockAudioContext();
+
     if (audio.paused) {
-      await audio.play();
+      const played = await safePlay(audio);
+      if (!played) return;
       btn.textContent = 'Pausar';
       btn.classList.add('is-playing');
       item.classList.add('is-playing');
@@ -69,12 +72,44 @@ const players = SOUND_LIBRARY.map(([key, label], index) => {
   return { audio, btn, slider, item };
 });
 
+async function unlockAudioContext() {
+  if (isAudioUnlocked) return;
+
+  try {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    if (context.state === 'suspended') {
+      await context.resume();
+    }
+    const buffer = context.createBuffer(1, 1, 22050);
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.start(0);
+    source.disconnect();
+  } catch (_) {
+    // fallback silencioso para navegadores sem suporte completo
+  }
+
+  isAudioUnlocked = true;
+}
+
+async function safePlay(audio) {
+  try {
+    await audio.play();
+    return true;
+  } catch (error) {
+    console.warn('Falha ao reproduzir som:', error);
+    return false;
+  }
+}
+
 function refreshMasterButton() {
   const isAnythingPlaying = players.some(({ audio }) => !audio.paused);
   toggleAll.textContent = isAnythingPlaying ? 'Pausar tudo' : 'Tocar tudo';
 }
 
 toggleAll.addEventListener('click', async () => {
+  await unlockAudioContext();
   const isAnythingPlaying = players.some(({ audio }) => !audio.paused);
 
   if (isAnythingPlaying) {
@@ -86,7 +121,8 @@ toggleAll.addEventListener('click', async () => {
     });
   } else {
     for (const { audio, btn, item } of players) {
-      await audio.play();
+      const played = await safePlay(audio);
+      if (!played) continue;
       btn.textContent = 'Pausar';
       btn.classList.add('is-playing');
       item.classList.add('is-playing');
