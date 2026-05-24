@@ -14,6 +14,8 @@ const SOUND_LIBRARY = [
   ['wind', 'Vento'],
 ];
 
+const SOUND_BASE_PATH = '../Projeto/data/resources/sounds';
+
 const soundList = document.querySelector('#soundList');
 const template = document.querySelector('#soundItemTemplate');
 const toggleAll = document.querySelector('#toggleAll');
@@ -24,9 +26,9 @@ const masterVolumeValue = document.querySelector('#masterVolumeValue');
 let globalVolumeFactor = Number(masterVolume.value) / 100;
 
 const players = SOUND_LIBRARY.map(([key, label], index) => {
-  const audio = new Audio(`../data/resources/sounds/${key}.ogg`);
+  const audio = new Audio(`${SOUND_BASE_PATH}/${key}.ogg`);
   audio.loop = true;
-  audio.preload = 'metadata';
+  audio.preload = 'auto';
   audio.volume = globalVolumeFactor;
 
   const item = template.content.firstElementChild.cloneNode(true);
@@ -50,10 +52,14 @@ const players = SOUND_LIBRARY.map(([key, label], index) => {
 
   btn.addEventListener('click', async () => {
     if (audio.paused) {
-      await audio.play();
-      btn.textContent = 'Pausar';
-      btn.classList.add('is-playing');
-      item.classList.add('is-playing');
+      try {
+        await audio.play();
+        btn.textContent = 'Pausar';
+        btn.classList.add('is-playing');
+        item.classList.add('is-playing');
+      } catch (error) {
+        console.error(`Não foi possível tocar ${key}.`, error);
+      }
     } else {
       audio.pause();
       btn.textContent = 'Tocar';
@@ -86,10 +92,14 @@ toggleAll.addEventListener('click', async () => {
     });
   } else {
     for (const { audio, btn, item } of players) {
-      await audio.play();
-      btn.textContent = 'Pausar';
-      btn.classList.add('is-playing');
-      item.classList.add('is-playing');
+      try {
+        await audio.play();
+        btn.textContent = 'Pausar';
+        btn.classList.add('is-playing');
+        item.classList.add('is-playing');
+      } catch (error) {
+        console.error('Não foi possível tocar um dos sons.', error);
+      }
     }
   }
 
