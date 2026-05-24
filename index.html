@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blanket Web</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <h1>Blanket Web</h1>
+        <p>Misture e reproduza sons ambiente diretamente no navegador.</p>
+      </header>
+
+      <section class="controls card">
+        <div class="control-group">
+          <label for="master-volume">Volume geral</label>
+          <input id="master-volume" type="range" min="0" max="100" value="80" />
+        </div>
+        <div class="buttons">
+          <button id="play-all" class="btn primary">Tocar todos os ativos</button>
+          <button id="pause-all" class="btn">Pausar todos</button>
+          <button id="stop-all" class="btn danger">Parar todos</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Sons</h2>
+        <div id="sounds-grid" class="sounds-grid" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <template id="sound-card-template">
+      <article class="sound-card card">
+        <div class="sound-head">
+          <h3 class="sound-name"></h3>
+          <button class="toggle btn primary">Tocar</button>
+        </div>
+        <div class="control-group">
+          <label>Volume</label>
+          <input class="sound-volume" type="range" min="0" max="100" value="70" />
+        </div>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
