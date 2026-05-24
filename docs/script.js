@@ -22,13 +22,22 @@ const masterVolume = document.querySelector('#masterVolume');
 
 let globalVolumeFactor = 0.7;
 
-const players = SOUND_LIBRARY.map(([key, label]) => {
-  const audio = new Audio(`data/resources/sounds/${key}.ogg`);
+const setSliderFill = (slider) => {
+  const value = Number(slider.value);
+  const max = Number(slider.max) || 100;
+  const percentage = `${(value / max) * 100}%`;
+  slider.style.setProperty('--fill', percentage);
+};
+
+const players = SOUND_LIBRARY.map(([key, label], index) => {
+  const audio = new Audio(`../data/resources/sounds/${key}.ogg`);
   audio.loop = true;
   audio.preload = 'metadata';
   audio.volume = 0.7;
 
   const item = template.content.firstElementChild.cloneNode(true);
+  item.style.animationDelay = `${index * 35}ms`;
+
   const title = item.querySelector('.sound-card__title');
   const btn = item.querySelector('.sound-card__toggle');
   const slider = item.querySelector('.sound-card__volume');
@@ -41,9 +50,11 @@ const players = SOUND_LIBRARY.map(([key, label]) => {
   };
 
   slider.addEventListener('input', () => {
+    setSliderFill(slider);
     applyVolume();
   });
 
+  setSliderFill(slider);
   applyVolume();
 
   btn.addEventListener('click', async () => {
@@ -102,10 +113,12 @@ stopAll.addEventListener('click', () => {
 });
 
 masterVolume.addEventListener('input', (event) => {
+  setSliderFill(masterVolume);
   globalVolumeFactor = Number(event.target.value) / 100;
   players.forEach(({ slider }) => {
     slider.dispatchEvent(new Event('input'));
   });
 });
 
+setSliderFill(masterVolume);
 refreshMasterButton();
