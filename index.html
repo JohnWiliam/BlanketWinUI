@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blanket Web</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>Blanket Web</h1>
+        <p>Misture sons ambiente e faça streaming direto do repositório.</p>
+      </header>
+
+      <section class="panel panel--controls" aria-label="Controles principais">
+        <button id="toggleAll" class="btn btn--primary" type="button">▶️ Tocar todos</button>
+        <label class="field">
+          <span>Volume geral</span>
+          <input id="masterVolume" type="range" min="0" max="100" value="70" />
+        </label>
+        <div class="presets">
+          <button id="savePreset" class="btn" type="button">Salvar preset</button>
+          <button id="loadPreset" class="btn" type="button">Carregar preset</button>
+          <button id="resetPreset" class="btn" type="button">Resetar</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Sons</h2>
+        <div id="soundGrid" class="grid" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <template id="soundCardTemplate">
+      <article class="sound-card">
+        <div>
+          <h3 class="sound-card__title"></h3>
+          <p class="sound-card__status">Pausado</p>
+        </div>
+        <button class="btn sound-card__toggle" type="button">Tocar</button>
+        <label class="field">
+          <span>Volume</span>
+          <input class="sound-card__volume" type="range" min="0" max="100" value="70" />
+        </label>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
