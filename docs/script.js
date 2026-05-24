@@ -19,30 +19,32 @@ const template = document.querySelector('#soundItemTemplate');
 const toggleAll = document.querySelector('#toggleAll');
 const stopAll = document.querySelector('#stopAll');
 const masterVolume = document.querySelector('#masterVolume');
+const masterVolumeValue = document.querySelector('#masterVolumeValue');
 
-let globalVolumeFactor = 0.7;
+let globalVolumeFactor = Number(masterVolume.value) / 100;
 
-const players = SOUND_LIBRARY.map(([key, label]) => {
-  const audio = new Audio(`data/resources/sounds/${key}.ogg`);
+const players = SOUND_LIBRARY.map(([key, label], index) => {
+  const audio = new Audio(`../data/resources/sounds/${key}.ogg`);
   audio.loop = true;
   audio.preload = 'metadata';
-  audio.volume = 0.7;
+  audio.volume = globalVolumeFactor;
 
   const item = template.content.firstElementChild.cloneNode(true);
   const title = item.querySelector('.sound-card__title');
   const btn = item.querySelector('.sound-card__toggle');
   const slider = item.querySelector('.sound-card__volume');
+  const sliderValue = item.querySelector('.sound-card__volume-value');
 
   title.textContent = label;
+  item.style.animationDelay = `${Math.min(index * 45, 400)}ms`;
 
   const applyVolume = () => {
     const individual = Number(slider.value) / 100;
     audio.volume = Math.min(individual * globalVolumeFactor, 1);
+    sliderValue.textContent = `${slider.value}%`;
   };
 
-  slider.addEventListener('input', () => {
-    applyVolume();
-  });
+  slider.addEventListener('input', applyVolume);
 
   applyVolume();
 
@@ -51,10 +53,12 @@ const players = SOUND_LIBRARY.map(([key, label]) => {
       await audio.play();
       btn.textContent = 'Pausar';
       btn.classList.add('is-playing');
+      item.classList.add('is-playing');
     } else {
       audio.pause();
       btn.textContent = 'Tocar';
       btn.classList.remove('is-playing');
+      item.classList.remove('is-playing');
     }
 
     refreshMasterButton();
@@ -62,7 +66,7 @@ const players = SOUND_LIBRARY.map(([key, label]) => {
 
   soundList.appendChild(item);
 
-  return { audio, btn, slider };
+  return { audio, btn, slider, item };
 });
 
 function refreshMasterButton() {
@@ -74,16 +78,18 @@ toggleAll.addEventListener('click', async () => {
   const isAnythingPlaying = players.some(({ audio }) => !audio.paused);
 
   if (isAnythingPlaying) {
-    players.forEach(({ audio, btn }) => {
+    players.forEach(({ audio, btn, item }) => {
       audio.pause();
       btn.textContent = 'Tocar';
       btn.classList.remove('is-playing');
+      item.classList.remove('is-playing');
     });
   } else {
-    for (const { audio, btn } of players) {
+    for (const { audio, btn, item } of players) {
       await audio.play();
       btn.textContent = 'Pausar';
       btn.classList.add('is-playing');
+      item.classList.add('is-playing');
     }
   }
 
@@ -91,11 +97,12 @@ toggleAll.addEventListener('click', async () => {
 });
 
 stopAll.addEventListener('click', () => {
-  players.forEach(({ audio, btn }) => {
+  players.forEach(({ audio, btn, item }) => {
     audio.pause();
     audio.currentTime = 0;
     btn.textContent = 'Tocar';
     btn.classList.remove('is-playing');
+    item.classList.remove('is-playing');
   });
 
   refreshMasterButton();
@@ -103,9 +110,9 @@ stopAll.addEventListener('click', () => {
 
 masterVolume.addEventListener('input', (event) => {
   globalVolumeFactor = Number(event.target.value) / 100;
-  players.forEach(({ slider }) => {
-    slider.dispatchEvent(new Event('input'));
-  });
+  masterVolumeValue.textContent = `${event.target.value}%`;
+  players.forEach(({ slider }) => slider.dispatchEvent(new Event('input')));
 });
 
+masterVolumeValue.textContent = `${masterVolume.value}%`;
 refreshMasterButton();
