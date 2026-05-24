@@ -14,7 +14,7 @@ const SOUND_LIBRARY = [
   ['wind', 'Vento'],
 ];
 
-const SOUND_BASE_PATH = './Projeto/data/resources/sounds';
+const SOUND_BASE_PATH = './assets/sounds';
 
 const soundList = document.querySelector('#soundList');
 const template = document.querySelector('#soundItemTemplate');
