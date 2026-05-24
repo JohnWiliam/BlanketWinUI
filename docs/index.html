@@ -11,17 +11,23 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="bg-orb bg-orb--one" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb--two" aria-hidden="true"></div>
+
     <main class="app">
-      <header class="app__header">
+      <header class="app__header glass">
+        <p class="eyebrow">Ambiente Sonoro</p>
         <h1>Blanket Web</h1>
-        <p>Reprodução online dos sons do projeto original.</p>
+        <p class="subtitle">Crie seu mix personalizado para foco, descanso e sono profundo.</p>
       </header>
 
-      <section class="master-controls" aria-label="Controles gerais">
-        <button id="toggleAll" class="btn btn--primary" type="button">Tocar tudo</button>
-        <button id="stopAll" class="btn" type="button">Parar tudo</button>
-        <label class="master-volume" for="masterVolume">
-          Volume geral
+      <section class="master-controls glass" aria-label="Controles gerais">
+        <div class="master-controls__buttons">
+          <button id="toggleAll" class="btn btn--primary" type="button">Tocar tudo</button>
+          <button id="stopAll" class="btn" type="button">Parar tudo</button>
+        </div>
+        <label class="volume-control" for="masterVolume">
+          <span>Volume geral</span>
           <input id="masterVolume" type="range" min="0" max="100" value="70" />
         </label>
       </section>
@@ -32,13 +38,13 @@
     </main>
 
     <template id="soundItemTemplate">
-      <li class="sound-card">
+      <li class="sound-card glass">
         <div class="sound-card__top">
           <h2 class="sound-card__title"></h2>
           <button class="btn sound-card__toggle" type="button">Tocar</button>
         </div>
-        <label>
-          Volume
+        <label class="volume-control">
+          <span>Volume</span>
           <input class="sound-card__volume" type="range" min="0" max="100" value="70" />
         </label>
       </li>

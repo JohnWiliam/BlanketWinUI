@@ -22,8 +22,8 @@ const masterVolume = document.querySelector('#masterVolume');
 
 let globalVolumeFactor = 0.7;
 
-const players = SOUND_LIBRARY.map(([key, label]) => {
-  const audio = new Audio(`data/resources/sounds/${key}.ogg`);
+const players = SOUND_LIBRARY.map(([key, label], index) => {
+  const audio = new Audio(`../data/resources/sounds/${key}.ogg`);
   audio.loop = true;
   audio.preload = 'metadata';
   audio.volume = 0.7;
@@ -34,6 +34,7 @@ const players = SOUND_LIBRARY.map(([key, label]) => {
   const slider = item.querySelector('.sound-card__volume');
 
   title.textContent = label;
+  item.style.animationDelay = `${Math.min(index * 45, 420)}ms`;
 
   const applyVolume = () => {
     const individual = Number(slider.value) / 100;
